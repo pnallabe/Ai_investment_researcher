@@ -15,16 +15,28 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+import hashlib
+from datetime import datetime, timedelta
+
 try:
-    from fastapi import FastAPI, HTTPException
+    from fastapi import FastAPI, HTTPException, Form, Depends
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.responses import JSONResponse
+    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+    from fastapi import Header
     from pydantic import BaseModel
     import uvicorn
     FASTAPI_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"FastAPI not available: {e}")
     FASTAPI_AVAILABLE = False
+
+try:
+    import jwt
+    JWT_AVAILABLE = True
+except ImportError:
+    logger.warning("PyJWT not available - authentication will be simplified")
+    JWT_AVAILABLE = False
 
 # Simple data models
 class HealthResponse(BaseModel):
@@ -44,6 +56,114 @@ class ResearchResponse(BaseModel):
     confidence_score: float
     processing_time: float
     timestamp: str
+
+# Authentication models
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class User(BaseModel):
+    id: str
+    email: str
+    username: str
+    first_name: str = ""
+    last_name: str = ""
+    is_active: bool = True
+    created_at: str
+    updated_at: str
+
+class AuthResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: User
+
+# JWT Configuration
+JWT_SECRET = "demo-secret-key-for-mvp-only"
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_HOURS = 24
+
+# Demo users database
+DEMO_USERS = {
+    "demo@example.com": {
+        "id": "demo-user-001",
+        "email": "demo@example.com",
+        "username": "demo_user",
+        "first_name": "Demo",
+        "last_name": "User",
+        "password_hash": hashlib.sha256("demo123".encode()).hexdigest(),
+        "is_active": True,
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
+    }
+}
+
+# Authentication utilities
+def create_access_token(user_data: dict) -> str:
+    """Create JWT access token."""
+    if JWT_AVAILABLE:
+        to_encode = user_data.copy()
+        expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
+        to_encode.update({"exp": expire, "sub": user_data["email"]})
+        return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    else:
+        # Fallback: simple token (not secure, for demo only)
+        import base64
+        import json
+        token_data = {
+            "user": user_data,
+            "exp": (datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)).isoformat()
+        }
+        return base64.b64encode(json.dumps(token_data).encode()).decode()
+
+def get_current_user(authorization: str = Header(None)) -> dict:
+    """Get current user from Authorization header."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+    
+    # Extract token from "Bearer <token>" format
+    try:
+        scheme, token = authorization.split()
+        if scheme.lower() != "bearer":
+            raise HTTPException(status_code=401, detail="Invalid authentication scheme")
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid authorization header format")
+    
+    if JWT_AVAILABLE:
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            email = payload.get("sub")
+            if email is None or email not in DEMO_USERS:
+                raise HTTPException(status_code=401, detail="Invalid token")
+            return DEMO_USERS[email]
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    else:
+        # Fallback: simple token verification (not secure, for demo only)
+        try:
+            import base64
+            import json
+            token_data = json.loads(base64.b64decode(token).decode())
+            exp_time = datetime.fromisoformat(token_data["exp"])
+            if datetime.utcnow() > exp_time:
+                raise HTTPException(status_code=401, detail="Token expired")
+            email = token_data["user"]["email"]
+            if email not in DEMO_USERS:
+                raise HTTPException(status_code=401, detail="Invalid token")
+            return DEMO_USERS[email]
+        except Exception:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+def authenticate_user(username: str, password: str) -> dict:
+    """Authenticate user with username/password."""
+    user = DEMO_USERS.get(username)
+    if not user:
+        return None
+    
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    if password_hash != user["password_hash"]:
+        return None
+    
+    return user
 
 def create_simple_app() -> FastAPI:
     """Create a simplified FastAPI app for MVP demonstration."""
@@ -86,6 +206,86 @@ def create_simple_app() -> FastAPI:
                 "database": "simulated",
                 "ai_nlp": "simulated"
             }
+        )
+    
+    # Authentication endpoints
+    @app.post("/v1/auth/login", response_model=AuthResponse, tags=["Authentication"])
+    async def login(username: str = Form(), password: str = Form()):
+        """
+        Authenticate user and return access token.
+        Demo credentials: username=demo@example.com, password=demo123
+        """
+        user_data = authenticate_user(username, password)
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Incorrect username or password"
+            )
+        
+        # Create access token
+        token = create_access_token({
+            "user_id": user_data["id"],
+            "email": user_data["email"],
+            "username": user_data["username"]
+        })
+        
+        # Return user info without password
+        user_response = User(
+            id=user_data["id"],
+            email=user_data["email"],
+            username=user_data["username"],
+            first_name=user_data["first_name"],
+            last_name=user_data["last_name"],
+            is_active=user_data["is_active"],
+            created_at=user_data["created_at"],
+            updated_at=user_data["updated_at"]
+        )
+        
+        return AuthResponse(
+            access_token=token,
+            token_type="bearer",
+            user=user_response
+        )
+    
+    @app.get("/v1/auth/me", response_model=User, tags=["Authentication"])
+    async def get_user_info(current_user: dict = Depends(get_current_user)):
+        """Get current authenticated user information."""
+        return User(
+            id=current_user["id"],
+            email=current_user["email"],
+            username=current_user["username"],
+            first_name=current_user["first_name"],
+            last_name=current_user["last_name"],
+            is_active=current_user["is_active"],
+            created_at=current_user["created_at"],
+            updated_at=current_user["updated_at"]
+        )
+    
+    @app.post("/v1/auth/refresh", response_model=AuthResponse, tags=["Authentication"])
+    async def refresh_user_token(current_user: dict = Depends(get_current_user)):
+        """Refresh access token."""
+        # Create new access token
+        token = create_access_token({
+            "user_id": current_user["id"],
+            "email": current_user["email"],
+            "username": current_user["username"]
+        })
+        
+        user_response = User(
+            id=current_user["id"],
+            email=current_user["email"],
+            username=current_user["username"],
+            first_name=current_user["first_name"],
+            last_name=current_user["last_name"],
+            is_active=current_user["is_active"],
+            created_at=current_user["created_at"],
+            updated_at=current_user["updated_at"]
+        )
+        
+        return AuthResponse(
+            access_token=token,
+            token_type="bearer",
+            user=user_response
         )
     
     @app.post("/v1/research/query", response_model=ResearchResponse, tags=["Research"])
