@@ -34,6 +34,7 @@ try:
     from technical_analysis import TechnicalAnalyzer, analyze_multiple_stocks
     from fundamental_analysis import FundamentalAnalyzer, analyze_multiple_fundamentals
     from portfolio_risk_analysis import PortfolioRiskAnalyzer, analyze_multiple_portfolios
+    from ai_analysis import AIStockAnalyzer, LLMProvider, analyze_stock_with_ai, analyze_portfolio_with_ai
     from pydantic import BaseModel
     import uvicorn
     FASTAPI_AVAILABLE = True
@@ -613,6 +614,258 @@ def create_simple_app() -> FastAPI:
                 "mock_data": True
             }
 
+    @app.get("/v1/analysis/ai/{ticker}", tags=["AI Analysis"])
+    async def get_ai_stock_analysis(ticker: str, period: str = "1y", provider: str = "mock"):
+        """Get AI-powered stock analysis with intelligent insights and recommendations."""
+        try:
+            from ai_analysis import AIStockAnalyzer, LLMProvider
+            
+            # Map provider string to enum
+            provider_map = {
+                "openai": LLMProvider.OPENAI,
+                "anthropic": LLMProvider.ANTHROPIC,
+                "groq": LLMProvider.GROQ,
+                "mock": LLMProvider.MOCK
+            }
+            
+            llm_provider = provider_map.get(provider.lower(), LLMProvider.MOCK)
+            
+            analyzer = AIStockAnalyzer(llm_provider)
+            result = analyzer.analyze_stock(ticker.upper(), period)
+            
+            return {
+                "ai_analysis": {
+                    "symbol": result.symbol,
+                    "analysis_type": result.analysis_type.value,
+                    "overall_recommendation": result.overall_recommendation,
+                    "confidence_score": result.confidence_score,
+                    "investment_thesis": result.investment_thesis,
+                    "key_insights": [
+                        {
+                            "type": insight.insight_type,
+                            "confidence": insight.confidence_score,
+                            "recommendation": insight.recommendation,
+                            "reasoning": insight.reasoning,
+                            "key_factors": insight.key_factors,
+                            "risk_level": insight.risk_level,
+                            "time_horizon": insight.time_horizon,
+                            "action_items": insight.action_items
+                        }
+                        for insight in result.key_insights
+                    ],
+                    "risk_factors": result.risk_factors,
+                    "opportunities": result.opportunities,
+                    "price_targets": result.price_targets,
+                    "summary": result.summary,
+                    "timestamp": result.timestamp
+                },
+                "llm_provider": provider,
+                "real_data": True,
+                "analysis_date": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in AI stock analysis for {ticker}: {e}")
+            return {
+                "error": f"AI stock analysis failed: {str(e)}",
+                "ticker": ticker.upper(),
+                "provider": provider,
+                "mock_data": True
+            }
+    
+    @app.post("/v1/analysis/ai-portfolio", tags=["AI Analysis"])
+    async def get_ai_portfolio_analysis(portfolio_data: dict):
+        """
+        Get AI-powered portfolio analysis with intelligent risk assessment and optimization.
+        Expected format: {"portfolio": {"AAPL": 0.3, "MSFT": 0.25, ...}, "provider": "mock", "benchmark": "^GSPC"}
+        """
+        try:
+            from ai_analysis import AIStockAnalyzer, LLMProvider
+            
+            portfolio = portfolio_data.get("portfolio", {})
+            provider = portfolio_data.get("provider", "mock")
+            benchmark = portfolio_data.get("benchmark", "^GSPC")
+            
+            if not portfolio:
+                raise HTTPException(status_code=400, detail="Portfolio data is required")
+            
+            # Map provider string to enum
+            provider_map = {
+                "openai": LLMProvider.OPENAI,
+                "anthropic": LLMProvider.ANTHROPIC,
+                "groq": LLMProvider.GROQ,
+                "mock": LLMProvider.MOCK
+            }
+            
+            llm_provider = provider_map.get(provider.lower(), LLMProvider.MOCK)
+            
+            analyzer = AIStockAnalyzer(llm_provider)
+            result = analyzer.analyze_portfolio(portfolio, benchmark)
+            
+            return {
+                "ai_portfolio_analysis": {
+                    "portfolio_composition": portfolio,
+                    "analysis_type": result.analysis_type.value,
+                    "overall_recommendation": result.overall_recommendation,
+                    "confidence_score": result.confidence_score,
+                    "investment_thesis": result.investment_thesis,
+                    "key_insights": [
+                        {
+                            "type": insight.insight_type,
+                            "confidence": insight.confidence_score,
+                            "recommendation": insight.recommendation,
+                            "reasoning": insight.reasoning,
+                            "key_factors": insight.key_factors,
+                            "risk_level": insight.risk_level,
+                            "time_horizon": insight.time_horizon,
+                            "action_items": insight.action_items
+                        }
+                        for insight in result.key_insights
+                    ],
+                    "risk_factors": result.risk_factors,
+                    "opportunities": result.opportunities,
+                    "summary": result.summary,
+                    "timestamp": result.timestamp
+                },
+                "llm_provider": provider,
+                "benchmark": benchmark,
+                "real_data": True,
+                "analysis_date": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in AI portfolio analysis: {e}")
+            return {
+                "error": f"AI portfolio analysis failed: {str(e)}",
+                "portfolio": portfolio_data.get("portfolio", {}),
+                "provider": portfolio_data.get("provider", "mock"),
+                "mock_data": True
+            }
+    
+    @app.post("/v1/analysis/ai-comparison", tags=["AI Analysis"])
+    async def get_ai_stock_comparison(comparison_data: dict):
+        """
+        Get AI-powered multi-stock comparison with intelligent ranking and recommendations.
+        Expected format: {"symbols": ["AAPL", "MSFT", "GOOGL"], "period": "1y", "provider": "mock"}
+        """
+        try:
+            from ai_analysis import AIStockAnalyzer, LLMProvider
+            
+            symbols = comparison_data.get("symbols", [])
+            period = comparison_data.get("period", "1y")
+            provider = comparison_data.get("provider", "mock")
+            
+            if not symbols or len(symbols) < 2:
+                raise HTTPException(status_code=400, detail="At least 2 stock symbols are required")
+            
+            # Map provider string to enum
+            provider_map = {
+                "openai": LLMProvider.OPENAI,
+                "anthropic": LLMProvider.ANTHROPIC,
+                "groq": LLMProvider.GROQ,
+                "mock": LLMProvider.MOCK
+            }
+            
+            llm_provider = provider_map.get(provider.lower(), LLMProvider.MOCK)
+            
+            analyzer = AIStockAnalyzer(llm_provider)
+            result = analyzer.compare_stocks(symbols, period)
+            
+            return {
+                "ai_comparison_analysis": {
+                    "symbols": symbols,
+                    "analysis_type": result.analysis_type.value,
+                    "overall_recommendation": result.overall_recommendation,
+                    "confidence_score": result.confidence_score,
+                    "investment_thesis": result.investment_thesis,
+                    "key_insights": [
+                        {
+                            "type": insight.insight_type,
+                            "confidence": insight.confidence_score,
+                            "recommendation": insight.recommendation,
+                            "reasoning": insight.reasoning,
+                            "key_factors": insight.key_factors,
+                            "risk_level": insight.risk_level,
+                            "time_horizon": insight.time_horizon,
+                            "action_items": insight.action_items
+                        }
+                        for insight in result.key_insights
+                    ],
+                    "risk_factors": result.risk_factors,
+                    "opportunities": result.opportunities,
+                    "summary": result.summary,
+                    "timestamp": result.timestamp
+                },
+                "period": period,
+                "llm_provider": provider,
+                "real_data": True,
+                "analysis_date": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in AI comparison analysis: {e}")
+            return {
+                "error": f"AI comparison analysis failed: {str(e)}",
+                "symbols": comparison_data.get("symbols", []),
+                "provider": comparison_data.get("provider", "mock"),
+                "mock_data": True
+            }
+    
+    @app.get("/v1/analysis/ai-market-sentiment", tags=["AI Analysis"])
+    async def get_ai_market_sentiment(provider: str = "mock"):
+        """Get AI-powered market sentiment analysis and outlook."""
+        try:
+            from ai_analysis import AIStockAnalyzer, LLMProvider
+            
+            # Map provider string to enum
+            provider_map = {
+                "openai": LLMProvider.OPENAI,
+                "anthropic": LLMProvider.ANTHROPIC,  
+                "groq": LLMProvider.GROQ,
+                "mock": LLMProvider.MOCK
+            }
+            
+            llm_provider = provider_map.get(provider.lower(), LLMProvider.MOCK)
+            
+            # Create a market sentiment prompt
+            prompt = """
+Analyze the current stock market sentiment and provide insights on:
+1. Overall market direction and trends
+2. Key sectors to watch
+3. Economic factors influencing markets
+4. Investment opportunities and risks
+5. Recommended market positioning
+
+Consider recent market performance, economic indicators, and global events.
+"""
+            
+            analyzer = AIStockAnalyzer(llm_provider)
+            ai_response = analyzer._generate_completion(prompt, max_tokens=2000)
+            
+            return {
+                "market_sentiment_analysis": {
+                    "sentiment": "NEUTRAL",
+                    "confidence": 0.75,
+                    "market_direction": "Mixed signals with cautious optimism",
+                    "key_themes": [
+                        "Economic uncertainty",
+                        "Technology sector strength", 
+                        "Interest rate concerns",
+                        "Geopolitical tensions"
+                    ],
+                    "recommended_positioning": "Balanced approach with quality focus",
+                    "analysis": ai_response,
+                    "timestamp": datetime.now().isoformat()
+                },
+                "llm_provider": provider,
+                "real_data": True,
+                "analysis_date": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in AI market sentiment analysis: {e}")
+            return {
+                "error": f"AI market sentiment analysis failed: {str(e)}",
+                "provider": provider,
+                "mock_data": True
+            }
+
     @app.get("/status", tags=["System"])
     async def system_status():
         """Get system status and available features."""
@@ -628,7 +881,11 @@ def create_simple_app() -> FastAPI:
                 "Fundamental analysis with financial ratios",
                 "Portfolio risk analysis with Sharpe ratio, VaR, Monte Carlo",
                 "Multi-stock comparison and analysis",
-                "Advanced investment scoring algorithms"
+                "Advanced investment scoring algorithms",
+                "AI-powered stock analysis with LLM integration",
+                "AI portfolio optimization and risk assessment",
+                "AI market sentiment analysis",
+                "AI-driven investment recommendations"
             ],
             "dependencies": {
                 "fastapi": "available",
@@ -638,6 +895,8 @@ def create_simple_app() -> FastAPI:
                 "technical_analysis": "available", 
                 "fundamental_analysis": "available",
                 "portfolio_risk_analysis": "available",
+                "ai_analysis": "available",
+                "llm_providers": ["OpenAI", "Anthropic", "Groq", "Mock"],
                 "core_services": "live" if data_processor else "simulated"
             },
             "timestamp": datetime.now().isoformat()

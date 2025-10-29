@@ -23,11 +23,11 @@
       "beta": 2.086
     },
     "valuation_metrics": {
-      "pe_ratio": 317.62067,
+      "pe_ratio": 322.06293,
       "forward_pe": 142.14505,
       "price_to_book": 19.14332,
       "dividend_yield": 0,
-      "eps": 1.45,
+      "eps": 1.43,
       "target_price": 392.276,
       "recommendation": "hold"
     },
@@ -49,9 +49,9 @@
     "data_sources": {
       "yahoo_finance": true,
       "sec_edgar": true,
-      "last_updated": "2025-10-29T00:27:22.037109"
+      "last_updated": "2025-10-29T00:35:12.657326"
     }
   },
-  "cached_at": "2025-10-29T00:27:22.037186",
-  "expires_at": "2025-10-29T01:27:22.037188"
+  "cached_at": "2025-10-29T00:35:12.657374",
+  "expires_at": "2025-10-29T01:35:12.657376"
 }
