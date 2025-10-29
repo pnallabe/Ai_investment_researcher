@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: investment_research
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # Neo4j Graph Database
+  neo4j:
+    image: neo4j:5.15
+    environment:
+      NEO4J_AUTH: neo4j/password
+      NEO4J_PLUGINS: '["apoc"]'
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/investment_research
+      - NEO4J_URL=bolt://neo4j:7687
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - neo4j
+      - redis
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./data:/app/data
+
+  # Celery Worker
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/investment_research
+      - NEO4J_URL=bolt://neo4j:7687
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - neo4j
+      - redis
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./data:/app/data
+
+  # Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  neo4j_data:
+  neo4j_logs:
+  redis_data:
