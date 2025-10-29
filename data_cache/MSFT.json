@@ -1,0 +1,57 @@
+{
+  "data": {
+    "basic_info": {
+      "ticker": "MSFT",
+      "company_name": "Microsoft Corporation",
+      "sector": "Technology",
+      "industry": "Software - Infrastructure",
+      "business_summary": "",
+      "employees": 228000,
+      "website": "https://www.microsoft.com",
+      "cik": "0000789019"
+    },
+    "market_data": {
+      "current_price": 542.010009765625,
+      "change": 10.490009765625018,
+      "change_percent": 1.9735870269463083,
+      "market_cap": 4029253681152,
+      "volume": 449029,
+      "day_high": 542.72998046875,
+      "day_low": 542.010009765625,
+      "fifty_two_week_high": 555.45,
+      "fifty_two_week_low": 344.79,
+      "beta": 1.023
+    },
+    "valuation_metrics": {
+      "pe_ratio": 39.683018,
+      "forward_pe": 36.258865,
+      "price_to_book": 11.732101,
+      "dividend_yield": 0.68,
+      "eps": 13.66,
+      "target_price": 621.06885,
+      "recommendation": "strong_buy"
+    },
+    "financial_metrics": {
+      "revenue_yf": 281723994112,
+      "gross_profit": 193893007360,
+      "net_income_yf": 101831999488,
+      "total_cash": 94564999168,
+      "total_debt": 112184000512,
+      "return_on_equity": 0.33280998,
+      "return_on_assets": 0.14203,
+      "operating_margin": 0.44901,
+      "profit_margin": 0.36146,
+      "revenue_sec": 62484000000,
+      "net_income_sec": 101832000000,
+      "total_assets_sec": 619003000000,
+      "stockholders_equity_sec": 343479000000
+    },
+    "data_sources": {
+      "yahoo_finance": true,
+      "sec_edgar": true,
+      "last_updated": "2025-10-29T00:03:11.855862"
+    }
+  },
+  "cached_at": "2025-10-29T00:03:11.855941",
+  "expires_at": "2025-10-29T01:03:11.855943"
+}

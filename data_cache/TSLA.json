@@ -1,0 +1,57 @@
+{
+  "data": {
+    "basic_info": {
+      "ticker": "TSLA",
+      "company_name": "Tesla, Inc.",
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Manufacturers",
+      "business_summary": "",
+      "employees": 125665,
+      "website": "https://www.tesla.com",
+      "cik": "0001318605"
+    },
+    "market_data": {
+      "current_price": 460.5400085449219,
+      "change": 8.120008544921859,
+      "change_percent": 1.7947943382082707,
+      "market_cap": 1531705950208,
+      "volume": 393988,
+      "day_high": 460.9599914550781,
+      "day_low": 460.4200134277344,
+      "fifty_two_week_high": 488.54,
+      "fifty_two_week_low": 214.25,
+      "beta": 2.086
+    },
+    "valuation_metrics": {
+      "pe_ratio": 317.62067,
+      "forward_pe": 142.14505,
+      "price_to_book": 19.14332,
+      "dividend_yield": 0,
+      "eps": 1.45,
+      "target_price": 392.276,
+      "recommendation": "hold"
+    },
+    "financial_metrics": {
+      "revenue_yf": 95632998400,
+      "gross_profit": 16263999488,
+      "net_income_yf": 5079000064,
+      "total_cash": 41647001600,
+      "total_debt": 13788000256,
+      "return_on_equity": 0.06791,
+      "return_on_assets": 0.0235,
+      "operating_margin": 0.06628,
+      "profit_margin": 0.05314,
+      "revenue_sec": 97690000000,
+      "net_income_sec": 7091000000,
+      "total_assets_sec": 122070000000,
+      "stockholders_equity_sec": 72913000000
+    },
+    "data_sources": {
+      "yahoo_finance": true,
+      "sec_edgar": true,
+      "last_updated": "2025-10-29T00:03:13.410791"
+    }
+  },
+  "cached_at": "2025-10-29T00:03:13.410843",
+  "expires_at": "2025-10-29T01:03:13.410844"
+}

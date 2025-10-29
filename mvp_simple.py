@@ -24,6 +24,12 @@ try:
     from fastapi.responses import JSONResponse
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from fastapi import Header
+    
+    # Import data ingestion modules
+    import sys
+    import os
+    sys.path.append(os.path.join(os.path.dirname(__file__), 'data_ingestion'))
+    from data_processor import DataProcessor
     from pydantic import BaseModel
     import uvicorn
     FASTAPI_AVAILABLE = True
@@ -173,6 +179,14 @@ def create_simple_app() -> FastAPI:
         description="Simplified version for demonstration",
         version="1.0.0-mvp"
     )
+    
+    # Initialize data processor for real financial data
+    try:
+        data_processor = DataProcessor()
+        logger.info("Data processor initialized successfully - real financial data available")
+    except Exception as e:
+        logger.warning(f"Data processor initialization failed: {e} - using mock data")
+        data_processor = None
     
     # CORS middleware
     app.add_middleware(
@@ -330,7 +344,39 @@ def create_simple_app() -> FastAPI:
     
     @app.get("/v1/portfolio/", tags=["Portfolio"])
     async def get_portfolios():
-        """Get user portfolios (mock data)."""
+        """Get user portfolios with real financial data."""
+        if data_processor:
+            try:
+                # Sample portfolio for demo
+                sample_portfolio = {
+                    'AAPL': 10,
+                    'MSFT': 5, 
+                    'GOOGL': 3,
+                    'TSLA': 2
+                }
+                
+                portfolio_data = data_processor.get_portfolio_data(sample_portfolio)
+                
+                return {
+                    "portfolios": [
+                        {
+                            "id": "portfolio_1",
+                            "name": "Growth Portfolio",
+                            "total_value": portfolio_data.get('summary', {}).get('total_value', 0),
+                            "holdings_count": portfolio_data.get('summary', {}).get('positions_count', 0),
+                            "total_gain_loss_percent": portfolio_data.get('summary', {}).get('total_gain_loss_percent', 0),
+                            "positions": portfolio_data.get('positions', {}),
+                            "sectors": portfolio_data.get('summary', {}).get('sectors', {}),
+                            "top_performers": portfolio_data.get('summary', {}).get('top_performers', []),
+                            "last_updated": portfolio_data.get('last_updated', ''),
+                            "real_data": True
+                        }
+                    ]
+                }
+            except Exception as e:
+                logger.error(f"Error fetching real portfolio data: {e}")
+        
+        # Fallback to mock data
         return {
             "portfolios": [
                 {
@@ -343,6 +389,61 @@ def create_simple_app() -> FastAPI:
             ]
         }
     
+    @app.get("/v1/market/overview", tags=["Market Data"])
+    async def get_market_overview():
+        """Get comprehensive market overview with real data."""
+        if data_processor:
+            try:
+                market_data = data_processor.get_market_overview()
+                return {
+                    "market_overview": market_data,
+                    "real_data": True,
+                    "last_updated": datetime.now().isoformat()
+                }
+            except Exception as e:
+                logger.error(f"Error fetching market data: {e}")
+        
+        # Fallback to mock data
+        return {
+            "market_overview": {
+                "indices": {
+                    "S&P 500": {"price": 5800.0, "change_percent": 0.5},
+                    "NASDAQ": {"price": 18500.0, "change_percent": 0.8}
+                }
+            },
+            "mock_data": True
+        }
+    
+    @app.get("/v1/stock/{ticker}", tags=["Market Data"])
+    async def get_stock_data(ticker: str):
+        """Get comprehensive stock data for a specific ticker."""
+        if data_processor:
+            try:
+                stock_data = data_processor.get_comprehensive_company_data(ticker.upper())
+                return {
+                    "stock_data": stock_data,
+                    "real_data": True,
+                    "last_updated": datetime.now().isoformat()
+                }
+            except Exception as e:
+                logger.error(f"Error fetching stock data for {ticker}: {e}")
+        
+        # Fallback to mock data
+        return {
+            "stock_data": {
+                "basic_info": {
+                    "ticker": ticker.upper(),
+                    "company_name": f"Mock Company for {ticker.upper()}",
+                    "sector": "Technology"
+                },
+                "market_data": {
+                    "current_price": 150.0,
+                    "change_percent": 2.5
+                }
+            },
+            "mock_data": True
+        }
+
     @app.get("/status", tags=["System"])
     async def system_status():
         """Get system status and available features."""
@@ -350,23 +451,19 @@ def create_simple_app() -> FastAPI:
             "system": "AI Investment Research Bot MVP",
             "status": "running",
             "available_features": [
-                "Basic research queries",
-                "Company summaries",
-                "Portfolio overview",
-                "Health monitoring"
+                "Real-time market data" if data_processor else "Basic research queries",
+                "Company analysis with SEC/Yahoo Finance data" if data_processor else "Company summaries",
+                "Live portfolio tracking" if data_processor else "Portfolio overview", 
+                "Market overview and indices" if data_processor else "Health monitoring"
             ],
-            "simulated_features": [
-                "Database connections",
-                "AI/NLP processing",
-                "Real-time data feeds",
-                "Advanced analytics"
-            ],
-            "next_steps": [
-                "Install full dependencies for complete functionality",
-                "Set up databases (PostgreSQL, Neo4j, ChromaDB)",
-                "Add API keys for external services",
-                "Implement React frontend"
-            ]
+            "dependencies": {
+                "fastapi": "available",
+                "data_processor": "available" if data_processor else "unavailable",
+                "sec_edgar": "available" if data_processor else "unavailable",
+                "yahoo_finance": "available" if data_processor else "unavailable",
+                "core_services": "live" if data_processor else "simulated"
+            },
+            "timestamp": datetime.now().isoformat()
         }
     
     return app
