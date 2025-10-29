@@ -2,6 +2,24 @@
 
 A comprehensive AI-powered investment research platform that automates data ingestion, analysis, and provides intelligent insights through a chat interface.
 
+## 🚀 Quick Start
+
+### Demo Access
+```bash
+# Start both backend and frontend
+cd Ai_investment_researcher
+
+# Backend (Terminal 1)
+python3 mvp_simple.py
+
+# Frontend (Terminal 2)  
+cd frontend && npm install && npm run dev
+```
+
+**Demo Login**: demo@example.com / demo123  
+**Frontend**: http://localhost:3000  
+**Backend API**: http://localhost:8000/docs
+
 ## Project Overview
 
 This system implements the complete architecture described in the System Design Document (SDD), featuring:
@@ -407,12 +425,13 @@ The system is designed with the following API structure:
 - **Data Processing**: Pandas, NumPy, BeautifulSoup
 - **Task Queue**: Celery with Redis
 
-### Frontend (Planned)
-- **Framework**: React with TypeScript
-- **State Management**: Redux Toolkit
-- **UI Components**: Material-UI
-- **Charts**: Chart.js/D3.js
-- **Real-time**: Socket.IO
+### Frontend ✅ **COMPLETED**
+- **Framework**: React 18 with TypeScript
+- **State Management**: React Query + Context API
+- **UI Components**: Material-UI (MUI)
+- **Authentication**: JWT with protected routes
+- **Build Tool**: Vite with hot module replacement
+- **Routing**: React Router v6
 
 ### Infrastructure
 - **Containerization**: Docker & Docker Compose
