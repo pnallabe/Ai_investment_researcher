@@ -222,7 +222,15 @@ class AIStockAnalyzer:
 **Confidence: 75%**
 
 **Investment Thesis:**
-Apple demonstrates solid fundamental strength with its diversified revenue streams and strong brand moat. However, current valuation metrics suggest the stock is fairly valued to slightly overvalued, warranting a cautious approach.
+Apple Inc. presents a compelling long-term investment opportunity anchored by its unparalleled ecosystem of products and services that generates exceptional customer loyalty and pricing power. The company's strategic evolution from a hardware-centric business to a comprehensive technology ecosystem positions it uniquely in the market.
+
+The core investment rationale centers on Apple's ability to consistently monetize its vast user base through recurring services revenue, which now represents over 20% of total revenue and carries significantly higher margins than hardware sales. This services transformation provides revenue stability and predictability that justifies premium valuations relative to traditional hardware manufacturers.
+
+Apple's competitive advantages are deeply entrenched and difficult to replicate. The seamless integration between hardware, software, and services creates powerful switching costs that maintain customer retention rates above 90% in key product categories. This ecosystem effect not only drives replacement cycles but also facilitates cross-selling opportunities across the product portfolio.
+
+From a financial perspective, Apple demonstrates exceptional capital efficiency with industry-leading returns on invested capital and robust free cash flow generation. The company's balance sheet strength, with over $150 billion in net cash, provides strategic flexibility for opportunistic acquisitions, increased shareholder returns, and investment in emerging technologies like augmented reality and autonomous vehicles.
+
+However, investors must weigh these strengths against legitimate valuation concerns and growth headwinds. Trading at premium multiples relative to historical averages and broader market indices, Apple faces the challenge of sustaining growth rates that justify current price levels. The smartphone market maturation in developed countries requires the company to drive growth through services expansion and new product categories.
 
 **Key Technical Insights:**
 - RSI at 61.18 indicates neutral momentum with slight bullish bias
@@ -598,22 +606,9 @@ Provide specific investment recommendations for each stock with clear reasoning.
                 )
             ]
             
-            # Extract investment thesis section specifically
+            # Use the full AI response as the investment thesis for now
+            # In a production system, you'd want more sophisticated parsing
             investment_thesis = ai_response
-            thesis_start = ai_response.lower().find("investment thesis")
-            if thesis_start != -1:
-                # Look for the next section header to end the thesis
-                remaining_text = ai_response[thesis_start:]
-                next_section = min([
-                    remaining_text.lower().find("key technical", 50),
-                    remaining_text.lower().find("fundamental", 50),
-                    remaining_text.lower().find("risk factors", 50),
-                    remaining_text.lower().find("price targets", 50)
-                ])
-                if next_section > 0:
-                    investment_thesis = remaining_text[:next_section].strip()
-                else:
-                    investment_thesis = remaining_text.strip()
 
             return AIAnalysisResult(
                 symbol=symbol,
