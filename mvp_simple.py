@@ -29,7 +29,11 @@ try:
     import sys
     import os
     sys.path.append(os.path.join(os.path.dirname(__file__), 'data_ingestion'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), 'analysis'))
     from data_processor import DataProcessor
+    from technical_analysis import TechnicalAnalyzer, analyze_multiple_stocks
+    from fundamental_analysis import FundamentalAnalyzer, analyze_multiple_fundamentals
+    from portfolio_risk_analysis import PortfolioRiskAnalyzer, analyze_multiple_portfolios
     from pydantic import BaseModel
     import uvicorn
     FASTAPI_AVAILABLE = True
@@ -444,6 +448,171 @@ def create_simple_app() -> FastAPI:
             "mock_data": True
         }
 
+    @app.get("/v1/analysis/technical/{ticker}", tags=["Advanced Analysis"])
+    async def get_technical_analysis(ticker: str, period: str = "1y"):
+        """Get comprehensive technical analysis for a stock."""
+        try:
+            from technical_analysis import TechnicalAnalyzer
+            analyzer = TechnicalAnalyzer(ticker.upper(), period)
+            analysis = analyzer.get_all_indicators()
+            return {
+                "technical_analysis": analysis,
+                "real_data": True,
+                "analysis_date": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in technical analysis for {ticker}: {e}")
+            return {
+                "error": f"Technical analysis failed: {str(e)}",
+                "ticker": ticker.upper(),
+                "mock_data": True
+            }
+    
+    @app.get("/v1/analysis/fundamental/{ticker}", tags=["Advanced Analysis"])
+    async def get_fundamental_analysis(ticker: str):
+        """Get comprehensive fundamental analysis for a stock."""
+        try:
+            from fundamental_analysis import FundamentalAnalyzer
+            analyzer = FundamentalAnalyzer(ticker.upper())
+            analysis = analyzer.get_comprehensive_analysis()
+            return {
+                "fundamental_analysis": analysis,
+                "real_data": True,
+                "analysis_date": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in fundamental analysis for {ticker}: {e}")
+            return {
+                "error": f"Fundamental analysis failed: {str(e)}",
+                "ticker": ticker.upper(),
+                "mock_data": True
+            }
+    
+    @app.post("/v1/analysis/portfolio-risk", tags=["Advanced Analysis"])
+    async def analyze_portfolio_risk(portfolio_data: dict):
+        """
+        Analyze portfolio risk metrics.
+        Expected format: {"portfolio": {"AAPL": 0.3, "MSFT": 0.25, ...}, "benchmark": "^GSPC"}
+        """
+        try:
+            from portfolio_risk_analysis import PortfolioRiskAnalyzer
+            
+            portfolio = portfolio_data.get("portfolio", {})
+            benchmark = portfolio_data.get("benchmark", "^GSPC")
+            
+            if not portfolio:
+                raise HTTPException(status_code=400, detail="Portfolio data is required")
+            
+            analyzer = PortfolioRiskAnalyzer(portfolio, benchmark)
+            analysis = analyzer.get_comprehensive_risk_analysis()
+            
+            return {
+                "portfolio_risk_analysis": analysis,
+                "real_data": True,
+                "analysis_date": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in portfolio risk analysis: {e}")
+            return {
+                "error": f"Portfolio risk analysis failed: {str(e)}",
+                "portfolio": portfolio_data.get("portfolio", {}),
+                "mock_data": True
+            }
+    
+    @app.post("/v1/analysis/multi-stock", tags=["Advanced Analysis"])
+    async def analyze_multiple_stocks(stock_data: dict):
+        """
+        Analyze multiple stocks with both technical and fundamental analysis.
+        Expected format: {"symbols": ["AAPL", "MSFT", "GOOGL"], "period": "1y"}
+        """
+        try:
+            from technical_analysis import analyze_multiple_stocks
+            from fundamental_analysis import analyze_multiple_fundamentals
+            
+            symbols = stock_data.get("symbols", [])
+            period = stock_data.get("period", "1y")
+            
+            if not symbols:
+                raise HTTPException(status_code=400, detail="Stock symbols are required")
+            
+            # Get technical analysis
+            technical_results = analyze_multiple_stocks(symbols, period)
+            
+            # Get fundamental analysis
+            fundamental_results = analyze_multiple_fundamentals(symbols)
+            
+            return {
+                "multi_stock_analysis": {
+                    "symbols": symbols,
+                    "technical_analysis": technical_results,
+                    "fundamental_analysis": fundamental_results
+                },
+                "real_data": True,
+                "analysis_date": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in multi-stock analysis: {e}")
+            return {
+                "error": f"Multi-stock analysis failed: {str(e)}",
+                "symbols": stock_data.get("symbols", []),
+                "mock_data": True
+            }
+    
+    @app.get("/v1/analysis/stock-comparison", tags=["Advanced Analysis"])
+    async def compare_stocks(symbols: str, period: str = "1y"):
+        """
+        Compare multiple stocks side-by-side.
+        Symbols should be comma-separated, e.g., "AAPL,MSFT,GOOGL"
+        """
+        try:
+            from technical_analysis import analyze_multiple_stocks
+            from fundamental_analysis import analyze_multiple_fundamentals
+            
+            symbol_list = [s.strip().upper() for s in symbols.split(",")]
+            
+            if len(symbol_list) < 2:
+                raise HTTPException(status_code=400, detail="At least 2 symbols required for comparison")
+            
+            # Get analysis for all stocks
+            technical_results = analyze_multiple_stocks(symbol_list, period)
+            fundamental_results = analyze_multiple_fundamentals(symbol_list)
+            
+            # Create comparison matrix
+            comparison = {}
+            for symbol in symbol_list:
+                tech_data = technical_results.get(symbol, {})
+                fund_data = fundamental_results.get(symbol, {})
+                
+                comparison[symbol] = {
+                    "current_price": tech_data.get("current_price"),
+                    "rsi": tech_data.get("momentum_indicators", {}).get("rsi"),
+                    "pe_ratio": fund_data.get("valuation_ratios", {}).get("pe_ratio"),
+                    "roe": fund_data.get("profitability_ratios", {}).get("roe"),
+                    "revenue_growth": fund_data.get("growth_metrics", {}).get("revenue_growth"),
+                    "investment_score": fund_data.get("investment_score", {}).get("score"),
+                    "investment_rating": fund_data.get("investment_score", {}).get("rating"),
+                    "technical_signals": tech_data.get("signals", {}),
+                    "market_cap": fund_data.get("basic_info", {}).get("market_cap")
+                }
+            
+            return {
+                "stock_comparison": {
+                    "symbols": symbol_list,
+                    "comparison_matrix": comparison,
+                    "detailed_technical": technical_results,
+                    "detailed_fundamental": fundamental_results
+                },
+                "real_data": True,
+                "analysis_date": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in stock comparison: {e}")
+            return {
+                "error": f"Stock comparison failed: {str(e)}",
+                "symbols": symbols,
+                "mock_data": True
+            }
+
     @app.get("/status", tags=["System"])
     async def system_status():
         """Get system status and available features."""
@@ -454,13 +623,21 @@ def create_simple_app() -> FastAPI:
                 "Real-time market data" if data_processor else "Basic research queries",
                 "Company analysis with SEC/Yahoo Finance data" if data_processor else "Company summaries",
                 "Live portfolio tracking" if data_processor else "Portfolio overview", 
-                "Market overview and indices" if data_processor else "Health monitoring"
+                "Market overview and indices" if data_processor else "Health monitoring",
+                "Technical analysis with 15+ indicators",
+                "Fundamental analysis with financial ratios",
+                "Portfolio risk analysis with Sharpe ratio, VaR, Monte Carlo",
+                "Multi-stock comparison and analysis",
+                "Advanced investment scoring algorithms"
             ],
             "dependencies": {
                 "fastapi": "available",
                 "data_processor": "available" if data_processor else "unavailable",
                 "sec_edgar": "available" if data_processor else "unavailable",
                 "yahoo_finance": "available" if data_processor else "unavailable",
+                "technical_analysis": "available", 
+                "fundamental_analysis": "available",
+                "portfolio_risk_analysis": "available",
                 "core_services": "live" if data_processor else "simulated"
             },
             "timestamp": datetime.now().isoformat()
