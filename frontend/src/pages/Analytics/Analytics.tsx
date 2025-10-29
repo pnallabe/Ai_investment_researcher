@@ -9,7 +9,6 @@ import {
   Paper,
   Tabs,
   Tab,
-  Button,
 } from '@mui/material'
 import {
   TrendingUp,

@@ -16,7 +16,6 @@ import {
     MenuItem,
     FormControl,
     InputLabel,
-    Divider,
     List,
     ListItem,
     ListItemText,
@@ -29,15 +28,13 @@ import {
 import { 
     Psychology, 
     TrendingUp, 
-    TrendingDown, 
     Warning, 
     Lightbulb, 
     Assessment,
     ExpandMore,
     SmartToy,
     Insights,
-    RecommendOutlined,
-    RiskAssessment
+    RecommendOutlined
 } from '@mui/icons-material';
 
 interface AIInsight {
@@ -326,7 +323,7 @@ const AIAnalysis: React.FC = () => {
                                         <Chip
                                             label={analysisData.overall_recommendation}
                                             color={getRecommendationColor(analysisData.overall_recommendation)}
-                                            size="large"
+                                            size="medium"
                                             sx={{ fontSize: '1.2rem', p: 2, mt: 1 }}
                                         />
                                     </Box>
@@ -372,9 +369,33 @@ const AIAnalysis: React.FC = () => {
                                 <Lightbulb sx={{ mr: 1 }} />
                                 Investment Thesis
                             </Typography>
-                            <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
-                                {analysisData.investment_thesis}
-                            </Typography>
+                            <Paper 
+                                variant="outlined" 
+                                sx={{ 
+                                    p: 3, 
+                                    bgcolor: 'grey.50', 
+                                    borderRadius: 2,
+                                    maxHeight: 'none',
+                                    overflow: 'visible'
+                                }}
+                            >
+                                <Typography 
+                                    variant="body1" 
+                                    sx={{ 
+                                        lineHeight: 1.8,
+                                        whiteSpace: 'pre-wrap',
+                                        wordBreak: 'break-word',
+                                        fontSize: '1rem',
+                                        textAlign: 'justify',
+                                        minHeight: 'auto',
+                                        '& p': {
+                                            marginBottom: 2
+                                        }
+                                    }}
+                                >
+                                    {analysisData.investment_thesis}
+                                </Typography>
+                            </Paper>
                         </CardContent>
                     </Card>
 
@@ -409,9 +430,27 @@ const AIAnalysis: React.FC = () => {
                                     <AccordionDetails>
                                         <Grid container spacing={2}>
                                             <Grid item xs={12} md={8}>
-                                                <Typography variant="body2" paragraph>
-                                                    <strong>Reasoning:</strong> {insight.reasoning}
-                                                </Typography>
+                                                <Box sx={{ mb: 2 }}>
+                                                    <Typography variant="body2" gutterBottom>
+                                                        <strong>Reasoning:</strong>
+                                                    </Typography>
+                                                    <Typography 
+                                                        variant="body2" 
+                                                        sx={{ 
+                                                            whiteSpace: 'pre-wrap',
+                                                            lineHeight: 1.6,
+                                                            wordBreak: 'break-word',
+                                                            pl: 2,
+                                                            borderLeft: '3px solid',
+                                                            borderColor: 'primary.light',
+                                                            bgcolor: 'grey.50',
+                                                            p: 2,
+                                                            borderRadius: 1
+                                                        }}
+                                                    >
+                                                        {insight.reasoning}
+                                                    </Typography>
+                                                </Box>
                                                 
                                                 <Typography variant="body2" gutterBottom>
                                                     <strong>Key Factors:</strong>
@@ -486,7 +525,7 @@ const AIAnalysis: React.FC = () => {
                                         {analysisData.risk_factors.map((risk, index) => (
                                             <ListItem key={index}>
                                                 <ListItemIcon>
-                                                    <RiskAssessment color="warning" />
+                                                    <Warning color="warning" />
                                                 </ListItemIcon>
                                                 <ListItemText primary={risk} />
                                             </ListItem>
@@ -538,7 +577,7 @@ const AIAnalysis: React.FC = () => {
                                         <Chip
                                             label={marketSentiment.sentiment}
                                             color={getSentimentColor(marketSentiment.sentiment)}
-                                            size="large"
+                                            size="medium"
                                             sx={{ fontSize: '1.2rem', p: 2, mt: 1 }}
                                         />
                                     </Box>
@@ -604,9 +643,33 @@ const AIAnalysis: React.FC = () => {
                             <Typography variant="h6" gutterBottom>
                                 Detailed Analysis
                             </Typography>
-                            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', lineHeight: 1.8 }}>
-                                {marketSentiment.analysis}
-                            </Typography>
+                            <Paper 
+                                variant="outlined" 
+                                sx={{ 
+                                    p: 3, 
+                                    bgcolor: 'grey.50', 
+                                    borderRadius: 2,
+                                    maxHeight: 'none',
+                                    overflow: 'visible'
+                                }}
+                            >
+                                <Typography 
+                                    variant="body1" 
+                                    sx={{ 
+                                        whiteSpace: 'pre-wrap', 
+                                        lineHeight: 1.8,
+                                        wordBreak: 'break-word',
+                                        fontSize: '1rem',
+                                        textAlign: 'justify',
+                                        minHeight: 'auto',
+                                        '& p': {
+                                            marginBottom: 2
+                                        }
+                                    }}
+                                >
+                                    {marketSentiment.analysis}
+                                </Typography>
+                            </Paper>
                         </CardContent>
                     </Card>
                 </>
