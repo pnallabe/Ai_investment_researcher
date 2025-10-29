@@ -195,6 +195,40 @@ def create_simple_app() -> FastAPI:
     except Exception as e:
         logger.warning(f"Data processor initialization failed: {e} - using mock data")
         data_processor = None
+
+    # Small utility to convert numpy / pandas types to native Python types
+    def _to_native(o):
+        try:
+            import numpy as _np
+        except Exception:
+            _np = None
+
+        # Handle numpy scalars
+        if _np is not None and isinstance(o, (_np.generic,)):
+            try:
+                return o.item()
+            except Exception:
+                # fallback to native cast
+                try:
+                    if isinstance(o, _np.integer):
+                        return int(o)
+                    if isinstance(o, _np.floating):
+                        return float(o)
+                except Exception:
+                    return o
+
+        # Recursively handle lists/tuples
+        if isinstance(o, list):
+            return [_to_native(v) for v in o]
+        if isinstance(o, tuple):
+            return tuple(_to_native(v) for v in o)
+
+        # Recursively handle dicts
+        if isinstance(o, dict):
+            return {k: _to_native(v) for k, v in o.items()}
+
+        # Other types (int, float, str, None, etc.) are left as-is
+        return o
     
     # CORS middleware
     app.add_middleware(
@@ -459,11 +493,14 @@ def create_simple_app() -> FastAPI:
             from analysis.technical_analysis import TechnicalAnalyzer
             analyzer = TechnicalAnalyzer(ticker.upper(), period)
             analysis = analyzer.get_all_indicators()
-            return {
+            response_payload = {
                 "technical_analysis": analysis,
                 "real_data": True,
                 "analysis_date": datetime.now().isoformat()
             }
+
+            # Sanitize numpy/pandas types before returning
+            return _to_native(response_payload)
         except Exception as e:
             logger.error(f"Error in technical analysis for {ticker}: {e}")
             return {
@@ -479,11 +516,13 @@ def create_simple_app() -> FastAPI:
             from analysis.fundamental_analysis import FundamentalAnalyzer
             analyzer = FundamentalAnalyzer(ticker.upper())
             analysis = analyzer.get_comprehensive_analysis()
-            return {
+            response_payload = {
                 "fundamental_analysis": analysis,
                 "real_data": True,
                 "analysis_date": datetime.now().isoformat()
             }
+
+            return _to_native(response_payload)
         except Exception as e:
             logger.error(f"Error in fundamental analysis for {ticker}: {e}")
             return {
@@ -510,11 +549,13 @@ def create_simple_app() -> FastAPI:
             analyzer = PortfolioRiskAnalyzer(portfolio, benchmark)
             analysis = analyzer.get_comprehensive_risk_analysis()
             
-            return {
+            response_payload = {
                 "portfolio_risk_analysis": analysis,
                 "real_data": True,
                 "analysis_date": datetime.now().isoformat()
             }
+
+            return _to_native(response_payload)
         except Exception as e:
             logger.error(f"Error in portfolio risk analysis: {e}")
             return {
@@ -541,11 +582,11 @@ def create_simple_app() -> FastAPI:
             
             # Get technical analysis
             technical_results = analyze_multiple_stocks(symbols, period)
-            
+
             # Get fundamental analysis
             fundamental_results = analyze_multiple_fundamentals(symbols)
-            
-            return {
+
+            response_payload = {
                 "multi_stock_analysis": {
                     "symbols": symbols,
                     "technical_analysis": technical_results,
@@ -554,6 +595,8 @@ def create_simple_app() -> FastAPI:
                 "real_data": True,
                 "analysis_date": datetime.now().isoformat()
             }
+
+            return _to_native(response_payload)
         except Exception as e:
             logger.error(f"Error in multi-stock analysis: {e}")
             return {
@@ -672,7 +715,7 @@ def create_simple_app() -> FastAPI:
             analyzer = AIStockAnalyzer(llm_provider)
             result = analyzer.analyze_stock(ticker.upper(), period)
             
-            return {
+            response_payload = {
                 "ai_analysis": {
                     "symbol": result.symbol,
                     "analysis_type": result.analysis_type.value,
@@ -702,6 +745,8 @@ def create_simple_app() -> FastAPI:
                 "real_data": True,
                 "analysis_date": datetime.now().isoformat()
             }
+
+            return _to_native(response_payload)
         except Exception as e:
             logger.error(f"Error in AI stock analysis for {ticker}: {e}")
             return {
@@ -740,7 +785,7 @@ def create_simple_app() -> FastAPI:
             analyzer = AIStockAnalyzer(llm_provider)
             result = analyzer.analyze_portfolio(portfolio, benchmark)
             
-            return {
+            response_payload = {
                 "ai_portfolio_analysis": {
                     "portfolio_composition": portfolio,
                     "analysis_type": result.analysis_type.value,
@@ -770,6 +815,8 @@ def create_simple_app() -> FastAPI:
                 "real_data": True,
                 "analysis_date": datetime.now().isoformat()
             }
+
+            return _to_native(response_payload)
         except Exception as e:
             logger.error(f"Error in AI portfolio analysis: {e}")
             return {
@@ -808,7 +855,7 @@ def create_simple_app() -> FastAPI:
             analyzer = AIStockAnalyzer(llm_provider)
             result = analyzer.compare_stocks(symbols, period)
             
-            return {
+            response_payload = {
                 "ai_comparison_analysis": {
                     "symbols": symbols,
                     "analysis_type": result.analysis_type.value,
@@ -838,6 +885,8 @@ def create_simple_app() -> FastAPI:
                 "real_data": True,
                 "analysis_date": datetime.now().isoformat()
             }
+
+            return _to_native(response_payload)
         except Exception as e:
             logger.error(f"Error in AI comparison analysis: {e}")
             return {
@@ -878,7 +927,7 @@ Consider recent market performance, economic indicators, and global events.
             analyzer = AIStockAnalyzer(llm_provider)
             ai_response = analyzer._generate_completion(prompt, max_tokens=2000)
             
-            return {
+            response_payload = {
                 "market_sentiment_analysis": {
                     "sentiment": "NEUTRAL",
                     "confidence": 0.75,
@@ -897,6 +946,8 @@ Consider recent market performance, economic indicators, and global events.
                 "real_data": True,
                 "analysis_date": datetime.now().isoformat()
             }
+
+            return _to_native(response_payload)
         except Exception as e:
             logger.error(f"Error in AI market sentiment analysis: {e}")
             return {

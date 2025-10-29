@@ -29,6 +29,8 @@ import {
   AccountCircle,
   Logout,
   Settings,
+  AutoAwesome,
+  ShowChart,
 } from '@mui/icons-material'
 import { useAuth } from '@hooks/useAuth'
 
@@ -46,6 +48,8 @@ const navItems: NavItem[] = [
   { label: 'Portfolio', path: '/portfolio', icon: <TrendingUp /> },
   { label: 'Companies', path: '/companies', icon: <Business /> },
   { label: 'Analytics', path: '/analytics', icon: <Analytics /> },
+  { label: 'AI Analysis', path: '/analysis/ai', icon: <AutoAwesome /> },
+  { label: 'Technical Analysis', path: '/analysis/technical', icon: <ShowChart /> },
 ]
 
 const Layout: React.FC = () => {

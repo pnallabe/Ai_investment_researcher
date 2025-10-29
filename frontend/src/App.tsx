@@ -17,6 +17,9 @@ import Analytics from '@pages/Analytics/Analytics'
 import Profile from '@pages/Profile/Profile'
 import SimpleTest from '@pages/SimpleTest'
 import DebugLogin from '@components/DebugLogin'
+import AIAnalysis from '@pages/Analysis/AIAnalysis'
+import TechnicalAnalysis from '@pages/Analysis/TechnicalAnalysis'
+import StockComparison from '@pages/Analysis/StockComparison'
 
 // Hooks and utilities
 import { AuthProvider, useAuth } from '@hooks/useAuth'
@@ -117,6 +120,9 @@ const AppRoutes: React.FC = () => {
       />
       <Route path="/test" element={<SimpleTest />} />
       <Route path="/debug" element={<DebugLogin />} />
+      <Route path="/test-ai" element={<AIAnalysis />} />
+      <Route path="/test-technical" element={<TechnicalAnalysis />} />
+      <Route path="/test-comparison" element={<StockComparison />} />
       <Route 
         path="/" 
         element={
@@ -131,6 +137,9 @@ const AppRoutes: React.FC = () => {
         <Route path="portfolio" element={<Portfolio />} />
         <Route path="companies" element={<Companies />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="analysis/ai" element={<AIAnalysis />} />
+        <Route path="analysis/technical" element={<TechnicalAnalysis />} />
+        <Route path="analysis/comparison" element={<StockComparison />} />
         <Route path="profile" element={<Profile />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

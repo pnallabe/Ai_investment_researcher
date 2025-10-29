@@ -11,21 +11,21 @@
       "cik": "0000789019"
     },
     "market_data": {
-      "current_price": 542.010009765625,
-      "change": 10.490009765625018,
-      "change_percent": 1.9735870269463083,
-      "market_cap": 4029253681152,
-      "volume": 449029,
-      "day_high": 542.72998046875,
-      "day_low": 542.010009765625,
+      "current_price": 538.9981079101562,
+      "change": -3.0718920898438,
+      "change_percent": -0.5666965686800228,
+      "market_cap": 4006248185856,
+      "volume": 0,
+      "day_high": 538.9981079101562,
+      "day_low": 538.9981079101562,
       "fifty_two_week_high": 555.45,
       "fifty_two_week_low": 344.79,
       "beta": 1.023
     },
     "valuation_metrics": {
-      "pe_ratio": 39.683018,
-      "forward_pe": 36.258865,
-      "price_to_book": 11.732101,
+      "pe_ratio": 39.45644,
+      "forward_pe": 36.051838,
+      "price_to_book": 11.665115,
       "dividend_yield": 0.67,
       "eps": 13.66,
       "target_price": 621.06885,
@@ -49,9 +49,9 @@
     "data_sources": {
       "yahoo_finance": true,
       "sec_edgar": true,
-      "last_updated": "2025-10-29T01:54:02.921398"
+      "last_updated": "2025-10-29T14:20:21.797855"
     }
   },
-  "cached_at": "2025-10-29T01:54:02.921439",
-  "expires_at": "2025-10-29T02:54:02.921441"
+  "cached_at": "2025-10-29T14:20:21.797902",
+  "expires_at": "2025-10-29T15:20:21.797904"
 }

@@ -20,6 +20,7 @@ import {
   Analytics,
 } from '@mui/icons-material'
 import { useAuth } from '@hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 import AuthDebug from '@components/AuthDebug'
 
 interface StatCard {
@@ -33,6 +34,7 @@ interface StatCard {
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   const stats: StatCard[] = [
     {
@@ -279,28 +281,31 @@ const Dashboard: React.FC = () => {
                     variant="outlined"
                     startIcon={<Analytics />}
                     sx={{ py: 1.5 }}
+                    onClick={() => navigate('/analysis/ai')}
                   >
-                    Research
+                    AI Analysis
                   </Button>
                 </Grid>
                 <Grid item xs={6}>
                   <Button
                     fullWidth
                     variant="outlined"
-                    startIcon={<TrendingUp />}
+                    startIcon={<ShowChart />}
                     sx={{ py: 1.5 }}
+                    onClick={() => navigate('/analysis/technical')}
                   >
-                    Portfolio
+                    Technical Analysis
                   </Button>
                 </Grid>
                 <Grid item xs={12}>
                   <Button
                     fullWidth
                     variant="contained"
-                    startIcon={<ShowChart />}
+                    startIcon={<TrendingUp />}
                     sx={{ py: 1.5, mt: 1 }}
+                    onClick={() => navigate('/portfolio')}
                   >
-                    Start AI Analysis
+                    Portfolio
                   </Button>
                 </Grid>
               </Grid>
