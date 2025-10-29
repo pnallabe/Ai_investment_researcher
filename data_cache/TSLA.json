@@ -28,7 +28,7 @@
       "price_to_book": 19.14332,
       "dividend_yield": 0,
       "eps": 1.43,
-      "target_price": 392.276,
+      "target_price": 395.526,
       "recommendation": "hold"
     },
     "financial_metrics": {
@@ -49,9 +49,9 @@
     "data_sources": {
       "yahoo_finance": true,
       "sec_edgar": true,
-      "last_updated": "2025-10-29T01:06:02.530599"
+      "last_updated": "2025-10-29T01:54:04.163155"
     }
   },
-  "cached_at": "2025-10-29T01:06:02.530788",
-  "expires_at": "2025-10-29T02:06:02.530791"
+  "cached_at": "2025-10-29T01:54:04.163257",
+  "expires_at": "2025-10-29T02:54:04.163259"
 }

@@ -19,28 +19,31 @@ import hashlib
 from datetime import datetime, timedelta
 
 try:
+    from pydantic import BaseModel
     from fastapi import FastAPI, HTTPException, Form, Depends
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.responses import JSONResponse
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from fastapi import Header
+    import uvicorn
     
     # Import data ingestion modules
     import sys
     import os
     sys.path.append(os.path.join(os.path.dirname(__file__), 'data_ingestion'))
     sys.path.append(os.path.join(os.path.dirname(__file__), 'analysis'))
-    from data_processor import DataProcessor
-    from technical_analysis import TechnicalAnalyzer, analyze_multiple_stocks
-    from fundamental_analysis import FundamentalAnalyzer, analyze_multiple_fundamentals
-    from portfolio_risk_analysis import PortfolioRiskAnalyzer, analyze_multiple_portfolios
-    from ai_analysis import AIStockAnalyzer, LLMProvider, analyze_stock_with_ai, analyze_portfolio_with_ai
-    from pydantic import BaseModel
-    import uvicorn
+    from data_ingestion.data_processor import DataProcessor
+    from analysis.technical_analysis import TechnicalAnalyzer, analyze_multiple_stocks
+    from analysis.fundamental_analysis import FundamentalAnalyzer, analyze_multiple_fundamentals
+    from analysis.portfolio_risk_analysis import PortfolioRiskAnalyzer, analyze_multiple_portfolios
+    from analysis.ai_analysis import AIStockAnalyzer, LLMProvider, analyze_stock_with_ai, analyze_portfolio_with_ai
     FASTAPI_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"FastAPI not available: {e}")
     FASTAPI_AVAILABLE = False
+    # Fallback BaseModel for when pydantic is not available
+    class BaseModel:
+        pass
 
 try:
     import jwt
@@ -453,7 +456,7 @@ def create_simple_app() -> FastAPI:
     async def get_technical_analysis(ticker: str, period: str = "1y"):
         """Get comprehensive technical analysis for a stock."""
         try:
-            from technical_analysis import TechnicalAnalyzer
+            from analysis.technical_analysis import TechnicalAnalyzer
             analyzer = TechnicalAnalyzer(ticker.upper(), period)
             analysis = analyzer.get_all_indicators()
             return {
@@ -473,7 +476,7 @@ def create_simple_app() -> FastAPI:
     async def get_fundamental_analysis(ticker: str):
         """Get comprehensive fundamental analysis for a stock."""
         try:
-            from fundamental_analysis import FundamentalAnalyzer
+            from analysis.fundamental_analysis import FundamentalAnalyzer
             analyzer = FundamentalAnalyzer(ticker.upper())
             analysis = analyzer.get_comprehensive_analysis()
             return {
@@ -496,7 +499,7 @@ def create_simple_app() -> FastAPI:
         Expected format: {"portfolio": {"AAPL": 0.3, "MSFT": 0.25, ...}, "benchmark": "^GSPC"}
         """
         try:
-            from portfolio_risk_analysis import PortfolioRiskAnalyzer
+            from analysis.portfolio_risk_analysis import PortfolioRiskAnalyzer
             
             portfolio = portfolio_data.get("portfolio", {})
             benchmark = portfolio_data.get("benchmark", "^GSPC")
@@ -566,8 +569,8 @@ def create_simple_app() -> FastAPI:
         Symbols should be comma-separated, e.g., "AAPL,MSFT,GOOGL"
         """
         try:
-            from technical_analysis import analyze_multiple_stocks
-            from fundamental_analysis import analyze_multiple_fundamentals
+            from analysis.technical_analysis import analyze_multiple_stocks
+            from analysis.fundamental_analysis import analyze_multiple_fundamentals
             
             symbol_list = [s.strip().upper() for s in symbols.split(",")]
             
@@ -618,7 +621,7 @@ def create_simple_app() -> FastAPI:
     async def get_ai_stock_analysis(ticker: str, period: str = "1y", provider: str = "mock"):
         """Get AI-powered stock analysis with intelligent insights and recommendations."""
         try:
-            from ai_analysis import AIStockAnalyzer, LLMProvider
+            from analysis.ai_analysis import AIStockAnalyzer, LLMProvider
             
             # Map provider string to enum
             provider_map = {
@@ -679,7 +682,7 @@ def create_simple_app() -> FastAPI:
         Expected format: {"portfolio": {"AAPL": 0.3, "MSFT": 0.25, ...}, "provider": "mock", "benchmark": "^GSPC"}
         """
         try:
-            from ai_analysis import AIStockAnalyzer, LLMProvider
+            from analysis.ai_analysis import AIStockAnalyzer, LLMProvider
             
             portfolio = portfolio_data.get("portfolio", {})
             provider = portfolio_data.get("provider", "mock")
@@ -747,7 +750,7 @@ def create_simple_app() -> FastAPI:
         Expected format: {"symbols": ["AAPL", "MSFT", "GOOGL"], "period": "1y", "provider": "mock"}
         """
         try:
-            from ai_analysis import AIStockAnalyzer, LLMProvider
+            from analysis.ai_analysis import AIStockAnalyzer, LLMProvider
             
             symbols = comparison_data.get("symbols", [])
             period = comparison_data.get("period", "1y")
@@ -812,7 +815,7 @@ def create_simple_app() -> FastAPI:
     async def get_ai_market_sentiment(provider: str = "mock"):
         """Get AI-powered market sentiment analysis and outlook."""
         try:
-            from ai_analysis import AIStockAnalyzer, LLMProvider
+            from analysis.ai_analysis import AIStockAnalyzer, LLMProvider
             
             # Map provider string to enum
             provider_map = {
