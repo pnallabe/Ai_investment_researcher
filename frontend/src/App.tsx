@@ -9,7 +9,7 @@ import { SnackbarProvider } from 'notistack'
 // Pages and components
 import SimpleLayout from '@components/SimpleLayout'
 import Login from '@pages/Login/Login'
-import SimpleDashboard from '@pages/Dashboard/SimpleDashboard'
+import LiveDashboard from '@pages/Dashboard/LiveDashboard'
 import Research from '@pages/Research/Research'
 import Portfolio from '@pages/Portfolio/Portfolio'
 import Companies from '@pages/Companies/Companies'
@@ -126,7 +126,7 @@ const AppRoutes: React.FC = () => {
         }
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<SimpleDashboard />} />
+        <Route path="dashboard" element={<LiveDashboard />} />
         <Route path="research" element={<Research />} />
         <Route path="portfolio" element={<Portfolio />} />
         <Route path="companies" element={<Companies />} />

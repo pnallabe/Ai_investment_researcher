@@ -49,9 +49,9 @@
     "data_sources": {
       "yahoo_finance": true,
       "sec_edgar": true,
-      "last_updated": "2025-10-29T00:03:11.855862"
+      "last_updated": "2025-10-29T00:10:51.271193"
     }
   },
-  "cached_at": "2025-10-29T00:03:11.855941",
-  "expires_at": "2025-10-29T01:03:11.855943"
+  "cached_at": "2025-10-29T00:10:51.271247",
+  "expires_at": "2025-10-29T01:10:51.271249"
 }
