@@ -599,7 +599,39 @@ def create_simple_app() -> FastAPI:
                     "market_cap": fund_data.get("basic_info", {}).get("market_cap")
                 }
             
-            return {
+            # Ensure all numeric/numpy types are converted to native Python types
+            def _to_native(o):
+                try:
+                    import numpy as _np
+                except Exception:
+                    _np = None
+
+                # Handle numpy scalars
+                if _np is not None and isinstance(o, (_np.generic,)):
+                    try:
+                        return o.item()
+                    except Exception:
+                        # fallback to native cast
+                        if isinstance(o, _np.integer):
+                            return int(o)
+                        if isinstance(o, _np.floating):
+                            return float(o)
+                        return o
+
+                # Recursively handle lists/tuples
+                if isinstance(o, list):
+                    return [_to_native(v) for v in o]
+                if isinstance(o, tuple):
+                    return tuple(_to_native(v) for v in o)
+
+                # Recursively handle dicts
+                if isinstance(o, dict):
+                    return {k: _to_native(v) for k, v in o.items()}
+
+                # Other types (int, float, str, None, etc.) are left as-is
+                return o
+
+            response_payload = {
                 "stock_comparison": {
                     "symbols": symbol_list,
                     "comparison_matrix": comparison,
@@ -609,6 +641,10 @@ def create_simple_app() -> FastAPI:
                 "real_data": True,
                 "analysis_date": datetime.now().isoformat()
             }
+
+            # Sanitize payload to avoid numpy types causing JSON encoding errors
+            sanitized = _to_native(response_payload)
+            return sanitized
         except Exception as e:
             logger.error(f"Error in stock comparison: {e}")
             return {
