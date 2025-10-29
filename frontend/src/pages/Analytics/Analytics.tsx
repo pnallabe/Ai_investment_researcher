@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   Container,
@@ -7,15 +7,30 @@ import {
   CardContent,
   Grid,
   Paper,
+  Tabs,
+  Tab,
+  Button,
 } from '@mui/material'
 import {
   TrendingUp,
   ShowChart,
   Assessment,
   PieChart,
+  Psychology,
+  Compare,
+  BarChart,
 } from '@mui/icons-material'
+import AIAnalysis from '../Analysis/AIAnalysis'
+import TechnicalAnalysis from '../Analysis/TechnicalAnalysis'
+import StockComparison from '../Analysis/StockComparison'
 
 const Analytics: React.FC = () => {
+  const [tabValue, setTabValue] = useState(0)
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue)
+  }
+
   const metrics = [
     {
       title: 'Portfolio Beta',
@@ -43,15 +58,23 @@ const Analytics: React.FC = () => {
     },
   ]
 
-  return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Analytics Dashboard
-      </Typography>
-      <Typography variant="body1" color="text.secondary" mb={4}>
-        Advanced analytics and insights for your investment portfolio.
-      </Typography>
+  const renderTabContent = () => {
+    switch (tabValue) {
+      case 0:
+        return <AIAnalysis />
+      case 1:
+        return <TechnicalAnalysis />
+      case 2:
+        return <StockComparison />
+      case 3:
+        return renderTraditionalAnalytics()
+      default:
+        return <AIAnalysis />
+    }
+  }
 
+  const renderTraditionalAnalytics = () => (
+    <>
       {/* Metrics Cards */}
       <Grid container spacing={3} mb={4}>
         {metrics.map((metric, index) => (
@@ -140,6 +163,52 @@ const Analytics: React.FC = () => {
           </Grid>
         </CardContent>
       </Card>
+    </>
+  )
+
+  return (
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Advanced Analytics & AI Insights
+      </Typography>
+      <Typography variant="body1" color="text.secondary" mb={4}>
+        Comprehensive analysis powered by AI, technical indicators, and advanced portfolio metrics.
+      </Typography>
+
+      {/* Navigation Tabs */}
+      <Paper sx={{ mb: 3 }}>
+        <Tabs 
+          value={tabValue} 
+          onChange={handleTabChange}
+          variant="fullWidth"
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
+        >
+          <Tab 
+            icon={<Psychology />} 
+            label="AI Analysis" 
+            sx={{ textTransform: 'none' }}
+          />
+          <Tab 
+            icon={<BarChart />} 
+            label="Technical Analysis" 
+            sx={{ textTransform: 'none' }}
+          />
+          <Tab 
+            icon={<Compare />} 
+            label="Stock Comparison" 
+            sx={{ textTransform: 'none' }}
+          />
+          <Tab 
+            icon={<Assessment />} 
+            label="Portfolio Metrics" 
+            sx={{ textTransform: 'none' }}
+          />
+        </Tabs>
+      </Paper>
+
+      {/* Tab Content */}
+      <Box>{renderTabContent()}</Box>
+
     </Container>
   )
 }

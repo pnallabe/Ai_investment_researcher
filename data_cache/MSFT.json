@@ -26,7 +26,7 @@
       "pe_ratio": 39.683018,
       "forward_pe": 36.258865,
       "price_to_book": 11.732101,
-      "dividend_yield": 0.68,
+      "dividend_yield": 0.67,
       "eps": 13.66,
       "target_price": 621.06885,
       "recommendation": "strong_buy"
@@ -49,9 +49,9 @@
     "data_sources": {
       "yahoo_finance": true,
       "sec_edgar": true,
-      "last_updated": "2025-10-29T00:35:21.038742"
+      "last_updated": "2025-10-29T01:06:01.198470"
     }
   },
-  "cached_at": "2025-10-29T00:35:21.038785",
-  "expires_at": "2025-10-29T01:35:21.038787"
+  "cached_at": "2025-10-29T01:06:01.198569",
+  "expires_at": "2025-10-29T02:06:01.198574"
 }

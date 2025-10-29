@@ -21,6 +21,13 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # Import analysis modules
 try:
     from technical_analysis import TechnicalAnalyzer
@@ -92,16 +99,25 @@ class AIAnalysisResult:
 class AIStockAnalyzer:
     """Main AI-powered stock analysis engine"""
     
-    def __init__(self, provider: LLMProvider = LLMProvider.MOCK, api_key: Optional[str] = None):
+    def __init__(self, provider: Union[LLMProvider, str] = LLMProvider.MOCK, api_key: Optional[str] = None):
         """
         Initialize AI Stock Analyzer
         
         Args:
-            provider: LLM provider to use
+            provider: LLM provider to use (enum or string)
             api_key: API key for the chosen provider
         """
-        self.provider = provider
-        self.api_key = api_key or os.getenv(f"{provider.value.upper()}_API_KEY")
+        # Convert string to enum if needed
+        if isinstance(provider, str):
+            try:
+                self.provider = LLMProvider(provider.lower())
+            except ValueError:
+                logger.warning(f"Unknown provider '{provider}', falling back to mock")
+                self.provider = LLMProvider.MOCK
+        else:
+            self.provider = provider
+            
+        self.api_key = api_key or os.getenv(f"{self.provider.value.upper()}_API_KEY")
         self.client = None
         
         self._initialize_client()
@@ -159,7 +175,7 @@ class AIStockAnalyzer:
             
             elif self.provider == LLMProvider.ANTHROPIC and self.client:
                 response = self.client.messages.create(
-                    model="claude-3-sonnet-20240229",
+                    model="claude-sonnet-4-20250514",
                     max_tokens=max_tokens,
                     temperature=0.3,
                     system="You are an expert financial analyst with deep knowledge of stock markets, technical analysis, and fundamental analysis. Provide detailed, actionable investment insights.",
@@ -299,13 +315,24 @@ Continue monitoring key indicators and adjust positions based on changing market
             AIAnalysisResult with comprehensive AI insights
         """
         try:
-            # Get technical analysis
-            technical_analyzer = TechnicalAnalyzer(symbol, period)
-            technical_data = technical_analyzer.get_all_indicators()
+            technical_data = {}
+            fundamental_data = {}
             
-            # Get fundamental analysis
-            fundamental_analyzer = FundamentalAnalyzer(symbol)
-            fundamental_data = fundamental_analyzer.get_comprehensive_analysis()
+            # Try to get technical analysis if available
+            try:
+                technical_analyzer = TechnicalAnalyzer(symbol, period)
+                technical_data = technical_analyzer.get_all_indicators()
+            except (NameError, ImportError):
+                logger.info("Technical analysis not available, using mock data")
+                technical_data = {"rsi": 65.0, "macd": "BULLISH", "sma_20": 250.0}
+            
+            # Try to get fundamental analysis if available
+            try:
+                fundamental_analyzer = FundamentalAnalyzer(symbol)
+                fundamental_data = fundamental_analyzer.get_comprehensive_analysis()
+            except (NameError, ImportError):
+                logger.info("Fundamental analysis not available, using mock data")
+                fundamental_data = {"pe_ratio": 30.0, "revenue_growth": 0.15, "debt_ratio": 0.3}
             
             # Create comprehensive analysis prompt
             prompt = self._create_stock_analysis_prompt(symbol, technical_data, fundamental_data)
@@ -413,7 +440,7 @@ TECHNICAL ANALYSIS DATA:
 FUNDAMENTAL ANALYSIS DATA:
 - Company: {fundamental_data.get('basic_info', {}).get('company_name', 'N/A')}
 - Sector: {fundamental_data.get('basic_info', {}).get('sector', 'N/A')}
-- Market Cap: ${fundamental_data.get('basic_info', {}).get('market_cap', 'N/A'):,}
+- Market Cap: ${fundamental_data.get('basic_info', {}).get('market_cap', 'N/A')}
 - P/E Ratio: {fundamental_data.get('valuation_ratios', {}).get('pe_ratio', 'N/A')}
 - ROE: {fundamental_data.get('profitability_ratios', {}).get('roe', 'N/A')}
 - Revenue Growth: {fundamental_data.get('growth_metrics', {}).get('revenue_growth', 'N/A')}
