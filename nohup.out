@@ -1,0 +1,29 @@
+2025-10-28 22:48:30,181 - __main__ - WARNING - PyJWT not available - authentication will be simplified
+INFO:     Started server process [51169]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 48] error while attempting to bind on address ('::1', 8000, 0, 0): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+🚀 Starting AI Investment Research Bot MVP...
+============================================================
+📋 MVP Features Available:
+  ✅ Basic API endpoints
+  ✅ Research query simulation
+  ✅ Company data (mock)
+  ✅ Portfolio overview (mock)
+  ✅ Health monitoring
+
+🌐 API Documentation:
+  📖 Interactive docs: http://localhost:8000/docs
+  📖 Alternative docs: http://localhost:8000/redoc
+  ❤️  Health check: http://localhost:8000/health
+  📊 System status: http://localhost:8000/status
+
+🧪 Test the API:
+  curl -X POST http://localhost:8000/v1/research/query \
+    -H 'Content-Type: application/json' \
+    -d '{"query":"Analyze Apple stock","query_type":"company_analysis"}'
+
+🛑 Press Ctrl+C to stop the server
+============================================================

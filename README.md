@@ -2,6 +2,24 @@
 
 A comprehensive AI-powered investment research platform that automates data ingestion, analysis, and provides intelligent insights through a chat interface.
 
+## 🚀 Quick Start
+
+### Demo Access
+```bash
+# Start both backend and frontend
+cd Ai_investment_researcher
+
+# Backend (Terminal 1)
+python3 mvp_simple.py
+
+# Frontend (Terminal 2)  
+cd frontend && npm install && npm run dev
+```
+
+**Demo Login**: demo@example.com / demo123  
+**Frontend**: http://localhost:3000  
+**Backend API**: http://localhost:8000/docs
+
 ## Project Overview
 
 This system implements the complete architecture described in the System Design Document (SDD), featuring:
@@ -12,7 +30,8 @@ This system implements the complete architecture described in the System Design 
 - **Graph Database**: Neo4j for relationship mapping between entities
 - **Vector Database**: ChromaDB for semantic search and document retrieval
 - **RESTful API**: FastAPI backend with comprehensive endpoints
-- **Real-time Chat Interface**: React-based frontend for analyst interaction
+- **React Frontend**: Modern TypeScript-based UI with Material-UI components
+- **Real-time Chat Interface**: AI-powered research assistant with WebSocket support
 
 ## Architecture
 
@@ -79,12 +98,13 @@ This system implements the complete architecture described in the System Design 
 ## Implemented Modules
 
 ### ✅ 1. Project Structure & Configuration
-- **Location**: `/config/`, `/docker/`, `requirements.txt`
+- **Location**: `/config/`, `/docker/`, `/frontend/`, `requirements.txt`
 - **Features**:
   - Environment configuration management
   - Docker containerization setup
   - Database connection configurations
-  - Comprehensive dependency management
+  - React TypeScript frontend with Material-UI
+  - Full-stack startup scripts and documentation
 
 ### ✅ 2. Data Ingestion Layer
 - **Location**: `/src/data_ingestion/`
@@ -137,6 +157,36 @@ This system implements the complete architecture described in the System Design 
   - Conversation management
   - Prompt templating system
 
+### ✅ 6. FastAPI Backend Services
+- **Location**: `/src/api/`
+- **Components**:
+  - `auth.py`: JWT authentication and user management
+  - `routes/`: Comprehensive API endpoint modules
+  - `middleware.py`: CORS, rate limiting, and security
+  - `websocket.py`: Real-time communication support
+- **Features**:
+  - 25+ REST API endpoints for all system functions
+  - JWT-based authentication with refresh tokens
+  - Role-based access control and security middleware
+  - Interactive API documentation with Swagger/OpenAPI
+  - Real-time WebSocket connections for live updates
+
+### ✅ 7. React Frontend Interface
+- **Location**: `/frontend/`
+- **Components**:
+  - `src/pages/`: Login, Dashboard, Research, Portfolio, Companies, Analytics, Profile
+  - `src/components/`: Reusable UI components with Material-UI
+  - `src/services/`: API integration and authentication services
+  - `src/hooks/`: Custom React hooks for state management
+- **Features**:
+  - Modern React 18 with TypeScript and Vite build system
+  - Responsive Material-UI design system with custom theming
+  - JWT authentication with automatic token refresh
+  - Interactive AI research chat interface with real-time responses
+  - Portfolio management dashboard with performance metrics
+  - Company analysis tools with financial data visualization
+  - Advanced analytics dashboard with risk assessment charts
+
 ## Key Features Implemented
 
 ### 🔄 Data Processing Pipeline
@@ -163,10 +213,20 @@ This system implements the complete architecture described in the System Design 
 - **ChromaDB**: Vector embeddings for semantic search
 - **Redis**: Caching and session management
 
+### ⚛️ Modern Frontend Interface
+- **React 18 + TypeScript**: Type-safe component development
+- **Material-UI Components**: Professional design system with responsive layout
+- **Authentication System**: JWT-based login with automatic token refresh
+- **Interactive Dashboard**: Portfolio overview with real-time metrics
+- **AI Chat Interface**: Natural language research queries with context
+- **Data Visualization**: Charts and analytics for portfolio insights
+- **Real-time Updates**: WebSocket integration for live data feeds
+
 ## Installation & Setup
 
 ### Prerequisites
 - Python 3.9+
+- Node.js 18+
 - Docker & Docker Compose
 - PostgreSQL 15+
 - Neo4j 5.x
@@ -194,6 +254,52 @@ cp .env.example .env
 4. **Start services with Docker**:
 ```bash
 docker-compose up -d
+```
+
+### 🚀 Quick Start (Full Stack)
+
+The fastest way to get both backend and frontend running:
+
+```bash
+# Make the startup script executable
+chmod +x start_fullstack.sh
+
+# Start both backend and frontend
+./start_fullstack.sh
+```
+
+This will:
+- Start the simplified MVP backend on `http://localhost:8000`
+- Start the React frontend on `http://localhost:3000`
+- Provide demo credentials and API documentation links
+
+**Demo Credentials:**
+- Email: `demo@example.com`
+- Password: `demo123`
+
+**Access Points:**
+- 🌐 **Frontend Application**: http://localhost:3000
+- 📡 **Backend API**: http://localhost:8000  
+- 📚 **API Documentation**: http://localhost:8000/docs
+
+### Manual Setup
+
+#### Backend Only
+```bash
+# Start simplified MVP backend
+python mvp_simple.py
+```
+
+#### Frontend Only
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install dependencies (first time only)
+npm install
+
+# Start development server
+npm run dev
 ```
 
 5. **Initialize databases**:
@@ -319,12 +425,13 @@ The system is designed with the following API structure:
 - **Data Processing**: Pandas, NumPy, BeautifulSoup
 - **Task Queue**: Celery with Redis
 
-### Frontend (Planned)
-- **Framework**: React with TypeScript
-- **State Management**: Redux Toolkit
-- **UI Components**: Material-UI
-- **Charts**: Chart.js/D3.js
-- **Real-time**: Socket.IO
+### Frontend ✅ **COMPLETED**
+- **Framework**: React 18 with TypeScript
+- **State Management**: React Query + Context API
+- **UI Components**: Material-UI (MUI)
+- **Authentication**: JWT with protected routes
+- **Build Tool**: Vite with hot module replacement
+- **Routing**: React Router v6
 
 ### Infrastructure
 - **Containerization**: Docker & Docker Compose

@@ -1,0 +1,57 @@
+{
+  "data": {
+    "basic_info": {
+      "ticker": "GOOGL",
+      "company_name": "Alphabet Inc.",
+      "sector": "Communication Services",
+      "industry": "Internet Content & Information",
+      "business_summary": "",
+      "employees": 187103,
+      "website": "https://abc.xyz",
+      "cik": "0001652044"
+    },
+    "market_data": {
+      "current_price": 267.489990234375,
+      "change": -1.7800097656249818,
+      "change_percent": -0.6610501599231188,
+      "market_cap": 3238341902336,
+      "volume": 460535,
+      "day_high": 267.75,
+      "day_low": 267.45001220703125,
+      "fifty_two_week_high": 270.73,
+      "fifty_two_week_low": 140.53,
+      "beta": 1.0
+    },
+    "valuation_metrics": {
+      "pe_ratio": 28.545359,
+      "forward_pe": 29.851562,
+      "price_to_book": 8.920722,
+      "dividend_yield": 0.31,
+      "eps": 9.37,
+      "target_price": 263.15076,
+      "recommendation": "buy"
+    },
+    "financial_metrics": {
+      "revenue_yf": 371399000064,
+      "gross_profit": 218911997952,
+      "net_income_yf": 115572998144,
+      "total_cash": 95147999232,
+      "total_debt": 41668001792,
+      "return_on_equity": 0.34829,
+      "return_on_assets": 0.16792,
+      "operating_margin": 0.32429,
+      "profit_margin": 0.31118,
+      "revenue_sec": 257637000000,
+      "net_income_sec": 100118000000,
+      "total_assets_sec": 450256000000,
+      "stockholders_equity_sec": 325084000000
+    },
+    "data_sources": {
+      "yahoo_finance": true,
+      "sec_edgar": true,
+      "last_updated": "2025-10-28T23:58:46.946309"
+    }
+  },
+  "cached_at": "2025-10-28T23:58:46.946377",
+  "expires_at": "2025-10-29T00:58:46.946379"
+}

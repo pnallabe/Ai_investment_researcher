@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     
     # API Keys
     openai_api_key: str = ""
+    anthropic_api_key: str = ""
     alpha_vantage_api_key: str = ""
     news_api_key: str = ""
     sec_edgar_user_agent: str = "Investment Research Bot (contact@example.com)"
