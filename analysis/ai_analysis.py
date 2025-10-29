@@ -426,7 +426,7 @@ Continue monitoring key indicators and adjust positions based on changing market
     def _create_stock_analysis_prompt(self, symbol: str, technical_data: Dict, fundamental_data: Dict) -> str:
         """Create detailed prompt for stock analysis"""
         return f"""
-Analyze the stock {symbol} based on the following comprehensive data and provide detailed investment insights:
+As an expert financial analyst, analyze the stock {symbol} based on the comprehensive data provided below and deliver a detailed investment report.
 
 TECHNICAL ANALYSIS DATA:
 - Current Price: ${technical_data.get('current_price', 'N/A')}
@@ -447,17 +447,32 @@ FUNDAMENTAL ANALYSIS DATA:
 - Investment Score: {fundamental_data.get('investment_score', {}).get('score', 'N/A')}/100
 - Current Rating: {fundamental_data.get('investment_score', {}).get('rating', 'N/A')}
 
-Please provide:
-1. **Overall Investment Recommendation** (BUY/HOLD/SELL) with confidence percentage
-2. **Investment Thesis** - Clear reasoning for the recommendation
-3. **Key Technical Insights** - What the technical indicators suggest
-4. **Fundamental Strengths and Weaknesses** - Critical financial health factors
-5. **Risk Factors** - Potential downside risks to consider
-6. **Price Targets** - Conservative, fair value, and optimistic price levels
-7. **Action Items** - Specific steps for investors to take
-8. **Time Horizon** - Recommended holding period
+ANALYSIS REQUIREMENTS:
+Provide a comprehensive investment analysis with the following sections:
 
-Format your response in clear sections with actionable insights.
+1. **Overall Investment Recommendation** (BUY/HOLD/SELL) with confidence percentage
+
+2. **Investment Thesis** (MOST IMPORTANT - Provide 3-4 detailed paragraphs):
+   - Core investment rationale based on company fundamentals
+   - Market positioning and competitive advantages 
+   - Growth prospects and value proposition
+   - Risk-reward assessment and timing considerations
+   
+3. **Key Technical Insights** - What the technical indicators suggest about price momentum and entry/exit points
+
+4. **Fundamental Strengths and Weaknesses** - Critical financial health factors and business fundamentals
+
+5. **Risk Factors** - Specific downside risks and mitigation strategies
+
+6. **Price Targets** - Conservative, fair value, and optimistic price levels with rationale
+
+7. **Action Items** - Specific, actionable steps for investors
+
+8. **Time Horizon** - Recommended holding period and review milestones
+
+CRITICAL: The Investment Thesis section must be comprehensive and complete. Do not abbreviate or truncate your analysis. Provide thorough reasoning that would satisfy a professional investment committee.
+
+Format each section clearly with detailed explanations and specific data points.
 """
     
     def _create_portfolio_analysis_prompt(self, portfolio: Dict[str, float], risk_data: Dict) -> str:
@@ -583,13 +598,30 @@ Provide specific investment recommendations for each stock with clear reasoning.
                 )
             ]
             
+            # Extract investment thesis section specifically
+            investment_thesis = ai_response
+            thesis_start = ai_response.lower().find("investment thesis")
+            if thesis_start != -1:
+                # Look for the next section header to end the thesis
+                remaining_text = ai_response[thesis_start:]
+                next_section = min([
+                    remaining_text.lower().find("key technical", 50),
+                    remaining_text.lower().find("fundamental", 50),
+                    remaining_text.lower().find("risk factors", 50),
+                    remaining_text.lower().find("price targets", 50)
+                ])
+                if next_section > 0:
+                    investment_thesis = remaining_text[:next_section].strip()
+                else:
+                    investment_thesis = remaining_text.strip()
+
             return AIAnalysisResult(
                 symbol=symbol,
                 analysis_type=analysis_type,
                 timestamp=datetime.now().isoformat(),
                 overall_recommendation=recommendation,
                 confidence_score=confidence,
-                investment_thesis=ai_response[:500] + "..." if len(ai_response) > 500 else ai_response,
+                investment_thesis=investment_thesis,
                 key_insights=key_insights,
                 risk_factors=["Market volatility", "Sector-specific risks", "Economic uncertainties"],
                 opportunities=["Technical breakout potential", "Fundamental improvements", "Market recovery"],
